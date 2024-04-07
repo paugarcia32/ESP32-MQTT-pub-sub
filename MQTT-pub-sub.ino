@@ -3,13 +3,15 @@
 #include <Wire.h>
 #include <Adafruit_BME280.h>
 #include <Adafruit_Sensor.h>
+#include "config.h"
 
-const char* ssid = "REPLACE_WITH_YOUR_SSID";
-const char* password = "REPLACE_WITH_YOUR_PASSWORD";
+// const char* ssid = "YOUR_SSID";
+// const char* password = "YOUR_PASSWORD";
+
 
 // Add your MQTT Broker IP address, example:
 //const char* mqtt_server = "192.168.1.144";
-const char* mqtt_server = "YOUR_MQTT_BROKER_IP_ADDRESS";
+// const char* mqtt_server = "YOUR_MQTT_BROKER_IP_ADDRESS";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -43,7 +45,8 @@ void setup() {
     while (1);
   }
   setup_wifi();
-  client.setServer(mqtt_server, 1883);
+  // client.setServer(mqtt_server, 1883);
+  client.setServer(MQTT_SERVER, 1883);
   client.setCallback(callback);
 
   pinMode(ledPin, OUTPUT);
@@ -54,13 +57,17 @@ void setup_wifi() {
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println(WIFI_SSID);
 
-  WiFi.begin(ssid, password);
+  // WiFi.begin(ssid, password);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(1000);
     Serial.print(".");
+    if (!digitalRead(ledPin)) {
+      digitalWrite(ledPin, HIGH);
+    }
   }
 
   Serial.println("");
@@ -116,6 +123,7 @@ void reconnect() {
     }
   }
 }
+
 void loop() {
   if (!client.connected()) {
     reconnect();
