@@ -37,19 +37,26 @@ const int ledPin = 4;
 
 void setup() {
   Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+
   // default settings
   // (you can also pass in a Wire library object like &Wire2)
   //status = bme.begin();  
-  if (!bme.begin(0x76)) {
+  if (bme.begin(0x76)) {
+    Serial.println("Did find a valid BME280 sensor!");
+    // digitalWrite(ledPin, HIGH);
+    // client.setServer(mqtt_server, 1883);
+    client.setServer(MQTT_SERVER, 1883);
+    client.setCallback(callback);
+
+    setup_wifi();
+  }
+  else {
     Serial.println("Could not find a valid BME280 sensor, check wiring!");
     while (1);
   }
-  setup_wifi();
-  // client.setServer(mqtt_server, 1883);
-  client.setServer(MQTT_SERVER, 1883);
-  client.setCallback(callback);
-
-  pinMode(ledPin, OUTPUT);
+   
+    // digitalWrite(ledPin, HIGH);
 }
 
 void setup_wifi() {
@@ -65,9 +72,10 @@ void setup_wifi() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.print(".");
-    if (!digitalRead(ledPin)) {
-      digitalWrite(ledPin, HIGH);
-    }
+    digitalWrite(ledPin, HIGH);
+    delay(1000);
+    Serial.print(".");
+    digitalWrite(ledPin, LOW);
   }
 
   Serial.println("");
@@ -125,6 +133,8 @@ void reconnect() {
 }
 
 void loop() {
+ // digitalWrite(ledPin, HIGH);
+ // Serial.print("Holaaaaa");
   if (!client.connected()) {
     reconnect();
   }
